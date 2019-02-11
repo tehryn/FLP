@@ -1,0 +1,35 @@
+Vstup: Gramatika G = (N, Σ, P, S) generující neprázdný jazyk.
+Výstup: Gramatika G0 = (N0, Σ0, P0, S), pro kterou platí:
+(i) L(G) = L(G0)
+(ii) Žádný symbol v N0 ∪ Σ’ není zbytečný
+Metoda:
+(1) Na gramatiku G aplikuj algoritmus 4.1 s cílem získat množinu Nt. Polož
+G = (Nt ∪ {S}, Σ, P1, S), kde P1 obsahuje pravidla tvořená pouze symboly
+z Nt ∪ Σ.
+(2) Algoritmus 4.2 aplikuj na gramatiku G. Výsledkem j
+
+4.1
+Algoritmus 4.1 Je L(G) neprázdný?
+Vstup: gramatika G = (N, Σ, P, S).
+Výstup: ANO je-li L(G) 6= ∅, NE v opačném případě.
+Metoda: Sestrojíme množiny N0, N1, . . . rekurzivně takto
+(1) N0 = ∅, i = 1
+(2) Ni = {A | A → α je v P ∧ α ∈ (Ni−1 ∪ Σ)∗}
+(3) Je-li Ni 6= Ni−1, polož i = i + 1 a vrať se ke kroku 2. Je-li Ni = Ni−1,
+polož Nt = Ni
+(4) Jestliže výchozí symbol S je v Nt, pak je výstup ANO, jinak NE.
+
+4.2
+Algoritmus 4.2 Odstranění nedostupných symbolů
+Vstup: Gramatika G = (N, Σ, P, S).
+Výstup: Gramatika G0 = (N0, Σ0, P0, S), pro kterou platí
+(i) L(G0) = L(G)
+(ii) Pro všechna X z (N0 ∪ Σ0) existují řetězce α a β z (N0 ∪ Σ0)∗tak, žeS ⇒∗ αXβ v gramatice G0.
+Metoda:
+(1) Položíme V0 = {S} a i = 1
+(2) Konstruujeme Vi = {X | A → αXβ ∈ P ∧ A ∈ Vi−1} ∪ Vi−1
+(3) Je-li Vi 6= Vi−1, polož i = i + 1 a vrať se ke kroku 2.
+Je-li Vi = Vi−1, pak
+N0 = Vi ∩ N
+Σ0 = Vi ∩ Σ
+P0 ⊆ P obsahuje ta pravidla, která jsou tvořena pouze symboly z V
