@@ -37,7 +37,7 @@ _strRules l (e:r) = _strRules ( l ++ [ show e ] ) r
 
 _strTerms :: String -> String -> String
 _strTerms l "" = drop 1 l
-_strTerms l (c:s) = _strTerms ( l ++ [',',c] ) s
+_strTerms l (c:s) = _strTerms ( l ++ (if c /= '#' then [',',c] else "") ) s
 
 
 instance Show Grammer
@@ -68,7 +68,7 @@ failed n = do
     case n of
         1 -> print "Invalid use of application. Please run program as simplify-bkg -i|-1|-2 [ input_file ]"
         2 -> print "Unspecified error"
-        3 -> print "Invalid input, please check syntax of input grammer."
+        3 -> print "Invalid input, please check if input data represents valid grammar."
         _ -> print "Unexpected error"
     exitWith ( ExitFailure n )
 
@@ -83,11 +83,13 @@ main = do
     let g = loadGrammer source
     let err_g = checkGrammer g
     when ( err_g /= 0 ) $ failed err_g
-    case action of
-        0 -> print g
-        1 -> print ( simplify g False )
-        2 -> print ( simplify g True )
-        _ -> failed unknownError
+    if action == 0
+        then print g
+        else do
+            let g' = simplify g (action == 2)
+            let err_g' = checkGrammer g'
+            when ( err_g' /= 0 ) $ failed err_g'
+            print g'
     return ()
 
 
@@ -131,7 +133,7 @@ loadGrammer source = let
         ( n:t:s:r ) = if validLines then lines source else [ "", "", "", "" ]
         validTerms = ( n /= "" ) && ( t /= "" ) && ( s /= "" ) && checkTerms t n s
         n' = if validTerms then [ c|c <- n, c /= ',' ] else ""
-        t' = if validTerms then [ c|c <- t, c /= ',' ] else ""
+        t' = (if validTerms then [ c|c <- t, c /= ',' ] else "") ++ "#"
         validGrammer = validTerms && validLines && isUnique n' && isUnique t' && checkRules n' t' r s'
         r' = if validGrammer then loadRules r else []
         s' = if validTerms && validLines then head s else 'S'
@@ -142,7 +144,7 @@ loadRules :: [ String ] -> [ Rule ]
 loadRules source = readRules source []
     where
         readRules [] r = r
-        readRules (str:l) r = readRules l ( readRule str : r )
+        readRules (str:l) r = readRules l ( r ++ [ readRule str ] )
         readRule str = Rule ( head ( left str ) ) (right str)
         left  str = parseLeft str ""
         parseLeft "" _ = error "Error: invalid syntax of rules."
@@ -224,7 +226,7 @@ simplify g@(Grammer _ _ _ start _ ) True = let
         n  = [ x | x <- nonTerms, elem x vi ]
         t  = [ x | x <- terms, elem x vi ]
         r  = finalizeRules vi rules []
-    in (Grammer n t r start True )
+    in (Grammer n t r start ( elem start n ) )
     where
         buildSet prev curr rules = if prev == curr then prev else buildSet curr ( parseRules "" rules curr ) rules
         parseRules res [] vi     = unique(res ++ vi)
@@ -233,25 +235,24 @@ simplify g@(Grammer _ _ _ start _ ) True = let
         _finalizeRightSide (c:str) vi = elem c vi && _finalizeRightSide str vi
         finalizeRules _ [] res = res
         finalizeRules vi (r:rs) res = if elem ( getRuleSideLeft r ) vi && _finalizeRightSide ( getRuleSideRight r ) vi
-            then finalizeRules vi rs ( r : res )
+            then finalizeRules vi rs ( res ++ [r] )
             else finalizeRules vi rs res
-
 
 simplify (Grammer _ terms rules start _ ) False = let
         -- parametry: gramatika, Ni-1, Ni
         n = algNotEmpty "" "" False
         r = algNotEmptyRules n rules []
-    in Grammer n terms r start True
+    in Grammer n terms r start ( elem start n )
     where
         algNotEmpty _ _ False = algNotEmpty "" (getNextNotEmpty rules "" "") True
         algNotEmpty prev curr True = if length prev == length curr then prev else algNotEmpty curr (getNextNotEmpty rules "" curr) True
         getNextNotEmpty [] curr _ = curr
         getNextNotEmpty (r:rs) curr ni = if notElem ( getRuleSideLeft r ) curr && getNextNotEmptyAppend ( getRuleSideRight r ) ni
-            then getNextNotEmpty rs ( getRuleSideLeft r : curr ) ni
+            then getNextNotEmpty rs ( curr ++ [ getRuleSideLeft r ] ) ni
             else getNextNotEmpty rs curr ni
         getNextNotEmptyAppend "" _ = True
         getNextNotEmptyAppend (c:str) ni = ( elem c ni || elem c terms ) && getNextNotEmptyAppend str ni
         algNotEmptyRules _ [] res = res
         algNotEmptyRules ni (r:rs) res = if elem ( getRuleSideLeft r ) ni && getNextNotEmptyAppend ( getRuleSideRight r ) ni
-            then algNotEmptyRules ni rs ( r : res )
+            then algNotEmptyRules ni rs ( res ++ [r] )
             else algNotEmptyRules ni rs res
