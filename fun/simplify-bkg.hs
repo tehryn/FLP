@@ -48,7 +48,7 @@ instance Show Grammer
             rules=rules,
             starting=starting,
             valide=valide
-        } = _strTerms "" nonTerminals ++ "\n" ++ _strTerms "" terminals ++ "\n" ++ intercalate "\n" ( _strRules [] rules ) ++ "\n"
+        } = _strTerms "" nonTerminals ++ "\n" ++ _strTerms "" terminals ++ "\n" ++ starting : "\n" ++ intercalate "\n" ( _strRules [] rules )
 
 instance Show Rule
     where
@@ -205,8 +205,39 @@ getRuleSideRight (Rule _ r) = r
 getRuleSideLeft  :: Rule -> Char
 getRuleSideLeft (Rule l _) = l
 
+getTerms :: Grammer -> String
+getTerms (Grammer _ t _ _ _) = t
+
+getNonTerms :: Grammer -> String
+getNonTerms (Grammer n _ _ _ _) = n
+
+getRules :: Grammer -> [ Rule ]
+getRules (Grammer _ _ r _ _) = r
+
 simplify :: Grammer -> Bool -> Grammer
-simplify (Grammer nonTerms terms rules start _ ) cont = let
+simplify g@(Grammer _ _ _ start _ ) True = let
+        g' = simplify g False
+        terms    = getTerms g'
+        nonTerms = getNonTerms g'
+        rules    = getRules g'
+        vi = buildSet "" "S" rules
+        n  = [ x | x <- nonTerms, elem x vi ]
+        t  = [ x | x <- terms, elem x vi ]
+        r  = finalizeRules vi rules []
+    in (Grammer n t r start True )
+    where
+        buildSet prev curr rules = if prev == curr then prev else buildSet curr ( parseRules "" rules curr ) rules
+        parseRules res [] vi     = unique(res ++ vi)
+        parseRules res (r:rs) vi = parseRules ( if elem ( getRuleSideLeft r ) vi then unique ( res ++ getRuleSideRight r ) else res ) rs vi
+        _finalizeRightSide "" _ = True
+        _finalizeRightSide (c:str) vi = elem c vi && _finalizeRightSide str vi
+        finalizeRules _ [] res = res
+        finalizeRules vi (r:rs) res = if elem ( getRuleSideLeft r ) vi && _finalizeRightSide ( getRuleSideRight r ) vi
+            then finalizeRules vi rs ( r : res )
+            else finalizeRules vi rs res
+
+
+simplify (Grammer _ terms rules start _ ) False = let
         -- parametry: gramatika, Ni-1, Ni
         n = algNotEmpty "" "" False
         r = algNotEmptyRules n rules []
