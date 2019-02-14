@@ -1,0 +1,21 @@
+Projekt do předmětu FLP v akademickém roce 2018/2019.
+Typ projektu: Funkcionální
+Zadání: simplify-bkg
+
+Autor: Jiří Matějka.
+Login: xmatej52.
+
+Překlad:
+Pro instalaci spusťte příkaz make v kořenovém adresáři projektu nebo program
+můžete přeložit příkazem 'ghc simplify-bkg.hs'
+
+Spuštění: ./simplify-bkg -i|-1|-2 [ input_file ]
+
+Parametry programu:
+-i zkontroluje syntax vstupní gramatiky a následně ji vypíše
+-1 Odstraní neterminály, kneré nelze generovat na terminály
+-2 Odstraní všechny zbytečné symboly
+
+Popis aplikace:
+Aplikace odstraní zbytečné symboly z bezkontextové aplikace generující
+neprázdný jazyk.
