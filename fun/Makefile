@@ -1,7 +1,7 @@
 simplify-bkg: simplify-bkg.hs
 	ghc simplify-bkg.hs
 
-.PHONY clean zip
+.PHONY: clean zip
 clean:
 	rm -f simplify-bkg.hi simplify-bkg.o simplify-bkg
 
