@@ -1,0 +1,18 @@
+Projekt do předmětu FLP v akademickém roce 2018/2019.
+Typ projektu: Logický
+Zadání: Kostra grafu
+
+Autor: Jiří Matějka.
+Login: xmatej52.
+
+Překlad:
+Pro instalaci spusťte příkaz make v kořenovém adresáři projektu nebo program
+můžete přeložit příkazem 'swipl -o flp19-log -g main -c flp19-log.pl'
+
+Spuštění: ./simplify-bkg
+
+Demonstrace funkčnosti:
+Pro demonstraci funkčnosti spustě příklad 'make test' v kořenovém adresáři projektu. Jednotlivé vstupy jsou uloženy ve složce './testy' a mají koncovku 'in'. Očekávané výstupy mají koncovku '.out'.
+
+Popis aplikace:
+Aplikace nalezne všechny kostry zadaného grafu. Pokud graf na vstupu není spojitý, výstup bude prázdný.

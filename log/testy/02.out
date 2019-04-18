@@ -1,0 +1,9 @@
+A-B B-C C-D D-E E-F F-G G-I I-J
+A-B B-C C-D D-E E-F F-G G-I J-A
+A-B B-C C-D D-E E-F F-G I-J J-A
+A-B B-C C-D D-E E-F G-I I-J J-A
+A-B B-C C-D D-E F-G G-I I-J J-A
+A-B B-C C-D E-F F-G G-I I-J J-A
+A-B B-C D-E E-F F-G G-I I-J J-A
+A-B C-D D-E E-F F-G G-I I-J J-A
+B-C C-D D-E E-F F-G G-I I-J J-A
